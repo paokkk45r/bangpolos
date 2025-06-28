@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bang Polos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Bootstrap CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  
+  <!-- SweetAlert -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+  body {
+    background: linear-gradient(135deg, #0f1e42, #1a3a7c);
+    color: white;
+    min-height: 100vh;
+  }
+
+  .navbar, footer {
+    background-color: #0c1735 !important;
+  }
+
+  .card {
+    background-color: #162c56;
+    border: none;
+  }
+
+  .btn-success {
+    background-color: #1e88e5;
+    border: none;
+  }
+
+  .btn-success:hover {
+    background-color: #1565c0;
+  }
+
+.navbar-gloss {
+  background-color: #111827;
+  position: relative;
+  z-index: 1;
+}
+
+.shine-effect {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: sweep-shine 3s infinite;
+  z-index: 2;
+  pointer-events: none;
+}
+
+@keyframes sweep-shine {
+  0% {
+    left: -80%;
+  }
+  100% {
+    left: 130%;
+  }
+}
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<nav class="navbar navbar-dark navbar-gloss px-3 position-relative overflow-hidden">
+  <h2 class="navbar-brand mb-0">Bang Polos</h2>
+
+  <div class="d-flex gap-2">
+    <a href="/page/v1/promo.html" class="btn btn-outline-info btn-sm" title="Lihat Promo">
+      <i class="bi bi-megaphone-fill"></i>
+    </a>
+    <a href="https://youtube.com/@BangPolos-p1x" target="_blank" class="btn btn-outline-danger btn-sm" title="YouTube Channel">
+      <i class="bi bi-youtube"></i>
+    </a>
+    <a href="/page/v1/login.html" class="btn btn-outline-light btn-sm" title="Login Admin">
+      <i class="bi bi-person-circle"></i>
+    </a>
+  </div>
+
+  <!-- Efek kilau -->
+  <div class="shine-effect"></div>
+</nav>
+
+
+    <!-- Deskripsi -->
+  <div class="container mt-4">
+    <p class="text-light text-center">
+      Selamat datang di situs Bang Polos. Pilih konten dan nikmati video eksklusif yang hanya bisa dibuka dengan password dari admin.
+    </p>
+  </div>
+
+  <!-- Konten List -->
+  <div class="container mt-4" id="konten-wrapper">
+    <p>Memuat konten...</p>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <!-- Firebase Config (Edit Sesuai Punya Kamu) -->
+  <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCuvtON3nJjwOp-xJpw9vmI3RvDKrt782U",
+  authDomain: "bangpolos-f7ea2.firebaseapp.com",
+  databaseURL: "https://bangpolos-f7ea2-default-rtdb.firebaseio.com/",
+  projectId: "bangpolos-f7ea2",
+  storageBucket: "bangpolos-f7ea2.firebasestorage.app",
+  messagingSenderId: "465690589820",
+  appId: "1:465690589820:web:652427b3ccc54049cd27f9"
+};
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+  </script>
+
+  <!-- Logic Menampilkan Konten -->
+  <script>
+    const wrapper = document.getElementById("konten-wrapper");
+
+    db.ref("konten").once("value")
+      .then(snapshot => {
+        if (!snapshot.exists()) {
+          wrapper.innerHTML = "<p class='text-danger'>Belum ada konten.</p>";
+          return;
+        }
+
+        wrapper.innerHTML = ""; // Kosongkan dulu
+        snapshot.forEach(child => {
+          const data = child.val();
+          
+          const card = document.createElement("div");
+          card.className = "card mb-4 shadow-sm";
+
+          card.innerHTML = `
+            <img src="${data.img1}" class="card-img-top" style="max-height:240px; object-fit:cover;" alt="Thumbnail">
+            <div class="card-body">
+              <h5 class="card-title">${data.judul1}</h5>
+              <button class="btn btn-success">Lihat Detail</button>
+            </div>
+          `;
+
+          const button = card.querySelector("button");
+button.addEventListener("click", () => {
+  Swal.fire({
+    title: '<i class="bi bi-lock-fill"></i> Masukkan Password',
+    input: "password",
+    inputPlaceholder: "Masukkan password dari admin",
+    inputAttributes: {
+      autocapitalize: "off",
+      autocorrect: "off"
+    },
+    showCancelButton: true,
+    confirmButtonText: "🔓 Buka Konten",
+    cancelButtonText: "Batal",
+    background: "#1e1e1e",
+    color: "#fff"
+  }).then(result => {
+    if (!result.value) return; // Tidak diisi atau dibatalkan
+
+    if (result.value === data.password) {
+Swal.fire({
+  title: "Konten Ditemukan",
+  background: "#1e1e1e",
+  color: "#fff",
+  width: 600,
+  html: `
+    <div class="text-start">
+
+      <!-- Bagian 1 -->
+      <h5 class="text-info text-center">${data.judul1}</h5>
+      <img src="${data.img1}" class="img-fluid d-block mx-auto rounded mb-3" style="width: 100%; height: auto; object-fit: cover;">
+      <a href="${data.btn1.link}" class="btn btn-primary w-100 mb-4">
+        <i class="bi bi-download"></i> ${data.btn1.teks}
+      </a>
+
+      <!-- Bagian 2 -->
+      <h5 class="text-warning text-center">${data.judul2}</h5>
+      <img src="${data.img2}" class="img-fluid d-block mx-auto rounded mb-3" style="width: 100%; height: auto; object-fit: cover;">
+      <a href="${data.btn2.link}" class="btn btn-warning w-100 mb-4">
+        <i class="bi bi-star-fill"></i> ${data.btn2.teks}
+      </a>
+
+      <!-- WA -->
+      <a href="${data.btn3.link}" class="btn btn-success w-100">
+        <i class="bi bi-whatsapp"></i> ${data.btn3.teks}
+      </a>
+    </div>
+  `,
+  confirmButtonText: "Tutup",
+  showCloseButton: true
+});
+
+
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Password salah!",
+        text: "Silakan coba lagi.",
+        background: "#1e1e1e",
+        color: "#fff"
+      });
+    }
+  });
+});
+
+
+          wrapper.appendChild(card);
+        });
+      })
+      .catch(err => {
+        console.error("Gagal ambil data:", err);
+        wrapper.innerHTML = "<p class='text-danger'>Gagal memuat konten. Cek koneksi dan console log.</p>";
+      });
+  </script>
+</body>
+</html>
